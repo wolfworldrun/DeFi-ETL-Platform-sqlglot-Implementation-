@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DeFi Blockchain ETL Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0a0f1e;
+    --surface2: #0f1628;
+    --border: rgba(99, 179, 237, 0.12);
+    --accent: #63b3ed;
+    --accent2: #f6ad55;
+    --accent3: #68d391;
+    --text: #e2e8f0;
+    --muted: #718096;
+    --glow: rgba(99, 179, 237, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── RADIAL GLOW ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(99,179,237,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5,8,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 48px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .hero-label::before {
+    content: '//';
+    margin-right: 8px;
+    opacity: 0.5;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+
+  .hero h1 .line2 {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(99,179,237,0.5);
+  }
+
+  .hero h1 .line3 {
+    color: var(--accent2);
+  }
+
+  .hero-desc {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 540px;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .btn-primary:hover {
+    background: #90cdf4;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(99,179,237,0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid rgba(99,179,237,0.3);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--accent);
+    background: rgba(99,179,237,0.05);
+  }
+
+  /* ── STATS ROW ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin: 0 48px 120px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+
+  .stat {
+    background: var(--surface);
+    padding: 32px 28px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── ARCHITECTURE ── */
+  .architecture {
+    padding: 80px 48px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    margin-bottom: 56px;
+  }
+
+  .section-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .section-tag::before { content: '01 — '; opacity: 0.5; }
+  .section-tag.t2::before { content: '02 — '; }
+  .section-tag.t3::before { content: '03 — '; }
+  .section-tag.t4::before { content: '04 — '; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── PIPELINE FLOW ── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 16px;
+  }
+
+  .pipeline-node {
+    flex: 1;
+    min-width: 160px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 20px;
+    text-align: center;
+    position: relative;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .pipeline-node:hover {
+    border-color: rgba(99,179,237,0.4);
+    background: var(--surface2);
+  }
+
+  .pipeline-node:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 1rem;
+    z-index: 2;
+    background: var(--bg);
+    padding: 0 4px;
+  }
+
+  .node-icon {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .node-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .node-tech {
+    font-size: 0.6rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FILE TREE ── */
+  .files-section {
+    padding: 80px 48px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .file-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .file-tree-header {
+    background: var(--surface2);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .dot.red   { background: #fc8181; }
+  .dot.yellow{ background: #f6e05e; }
+  .dot.green { background: #68d391; }
+
+  .file-tree-title {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .tree-body {
+    padding: 20px 24px;
+    font-size: 0.75rem;
+    line-height: 2;
+  }
+
+  .tree-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 1px 0;
+    transition: background 0.15s;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: default;
+  }
+
+  .tree-line:hover { background: rgba(99,179,237,0.05); }
+
+  .tree-indent { color: rgba(99,179,237,0.2); }
+
+  .tree-dir  { color: var(--accent2); font-weight: 500; }
+  .tree-py   { color: var(--accent); }
+  .tree-sol  { color: #b794f4; }
+  .tree-ts   { color: #63b3ed; }
+  .tree-sh   { color: var(--accent3); }
+  .tree-yaml { color: #f6ad55; }
+  .tree-txt  { color: var(--muted); }
+  .tree-md   { color: #fc8181; }
+
+  .tree-comment {
+    color: var(--muted);
+    font-size: 0.65rem;
+    opacity: 0.6;
+  }
+
+  /* ── TECH GRID ── */
+  .tech-section {
+    padding: 80px 48px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+
+  .tech-card {
+    background: var(--surface);
+    padding: 36px 28px;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .tech-card:hover { background: var(--surface2); }
+  .tech-card:hover::before { transform: scaleX(1); }
+
+  .tech-category {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--card-accent, var(--accent));
+    margin-bottom: 10px;
+  }
+
+  .tech-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .tech-desc {
+    font-size: 0.7rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+  }
+
+  .tag {
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    border-radius: 3px;
+    background: rgba(99,179,237,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(99,179,237,0.15);
+  }
+
+  /* ── CODE HIGHLIGHT ── */
+  .code-section {
+    padding: 80px 48px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .code-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .code-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    padding: 12px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .code-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(99,179,237,0.05);
+  }
+
+  .code-tab:hover:not(.active) { color: var(--text); }
+
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    padding: 28px;
+    font-size: 0.72rem;
+    line-height: 1.9;
+    overflow-x: auto;
+    display: none;
+  }
+
+  .code-block.active { display: block; }
+
+  .kw  { color: #b794f4; }
+  .fn  { color: var(--accent); }
+  .str { color: var(--accent3); }
+  .cm  { color: var(--muted); font-style: italic; }
+  .num { color: var(--accent2); }
+  .cls { color: #fc8181; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  .footer-right {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── LIVE TICKER ── */
+  .ticker {
+    background: rgba(99,179,237,0.05);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    gap: 64px;
+    animation: ticker 30s linear infinite;
+    white-space: nowrap;
+  }
+
+  .ticker-item {
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .ticker-item span {
+    color: var(--accent3);
+    margin-left: 6px;
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── VISUALIZATIONS ── */
+  .viz-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px 120px;
+  }
+
+  .viz-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-top: 32px;
+    overflow: hidden;
+  }
+
+  .viz-header {
+    padding: 28px 32px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .viz-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .viz-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+
+  .viz-desc {
+    font-size: 0.68rem;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  .viz-meta {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  .viz-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .viz-canvas-wrap {
+    padding: 24px 32px 28px;
+    height: 260px;
+    position: relative;
+  }
+
+  .viz-canvas-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  /* scrollbar nav */
+  #visualizations { scroll-margin-top: 80px; }
+
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .stats { margin: 0 24px 80px; grid-template-columns: repeat(2, 1fr); }
+    .architecture, .files-section, .tech-section, .code-section { padding: 60px 24px; }
+    .tech-grid { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipeline-node:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -16px; transform: translateX(50%); }
+    footer { padding: 32px 24px; flex-direction: column; gap: 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DeFi ETL</div>
+  <ul class="nav-links">
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#files">Structure</a></li>
+    <li><a href="#stack">Stack</a></li>
+    <li><a href="#code">Code</a></li>
+    <li><a href="#visualizations">Visualizations</a></li>
+  </ul>
+</nav>
+
+<!-- TICKER -->
+<div class="ticker" style="position:fixed;top:57px;left:0;right:0;z-index:99;">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item">ETH/USD<span>$3,421.88</span></span>
+    <span class="ticker-item">Gas<span>18 gwei</span></span>
+    <span class="ticker-item">Blocks<span>19,847,231</span></span>
+    <span class="ticker-item">ERC-20 Transfers<span>↑ 2.4M/day</span></span>
+    <span class="ticker-item">Uniswap V3 Volume<span>$892M</span></span>
+    <span class="ticker-item">MEV Extracted<span>$1.2M/day</span></span>
+    <span class="ticker-item">Active Validators<span>1,012,844</span></span>
+    <span class="ticker-item">DeFi TVL<span>$98.4B</span></span>
+    <span class="ticker-item">ETH/USD<span>$3,421.88</span></span>
+    <span class="ticker-item">Gas<span>18 gwei</span></span>
+    <span class="ticker-item">Blocks<span>19,847,231</span></span>
+    <span class="ticker-item">ERC-20 Transfers<span>↑ 2.4M/day</span></span>
+    <span class="ticker-item">Uniswap V3 Volume<span>$892M</span></span>
+    <span class="ticker-item">MEV Extracted<span>$1.2M/day</span></span>
+    <span class="ticker-item">Active Validators<span>1,012,844</span></span>
+    <span class="ticker-item">DeFi TVL<span>$98.4B</span></span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section style="padding-top: 36px;">
+  <div class="hero">
+    <p class="hero-label">Data Engineering · Blockchain · Quantitative Risk</p>
+    <h1>
+      <span class="line1">DeFi</span><br>
+      <span class="line2">Blockchain</span><br>
+      <span class="line3">ETL Platform</span>
+    </h1>
+    <p class="hero-desc">
+      Production-grade real-time data pipeline for Ethereum. Streams blocks and transactions via Kafka, decodes ERC-20/721 events with Pandas, translates SQL across warehouses with SQLGlot, and models DeFi risk with VaR, impermanent loss, and MEV exposure scoring.
+    </p>
+    <div class="hero-actions">
+      <a href="#architecture" class="btn btn-primary">Explore Architecture</a>
+      <a href="#code" class="btn btn-outline">View Code</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats reveal">
+  <div class="stat">
+    <span class="stat-num" data-target="19">0</span>
+    <span class="stat-label">Source Files</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" data-target="60">0</span>
+    <span class="stat-label">Unit Tests</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" data-target="7">0</span>
+    <span class="stat-label">SQL Dialects</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" data-target="3">0</span>
+    <span class="stat-label">Risk Models</span>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="architecture">
+  <div class="section-header reveal">
+    <span class="section-tag">Architecture</span>
+    <h2 class="section-title">End-to-End<br>Data Pipeline</h2>
+  </div>
+  <div class="pipeline reveal">
+    <div class="pipeline-node">
+      <span class="node-icon">⛓</span>
+      <div class="node-name">Blockchain</div>
+      <div class="node-tech">Ethereum RPC · web3.py</div>
+    </div>
+    <div class="pipeline-node">
+      <span class="node-icon">📡</span>
+      <div class="node-name">Ingestion</div>
+      <div class="node-tech">Kafka · gRPC · WebSocket</div>
+    </div>
+    <div class="pipeline-node">
+      <span class="node-icon">⚙️</span>
+      <div class="node-name">Transform</div>
+      <div class="node-tech">Pandas · SQLGlot · ETL</div>
+    </div>
+    <div class="pipeline-node">
+      <span class="node-icon">📐</span>
+      <div class="node-name">Risk Models</div>
+      <div class="node-tech">VaR · IL · MEV · CVaR</div>
+    </div>
+    <div class="pipeline-node">
+      <span class="node-icon">🗄</span>
+      <div class="node-name">Warehouse</div>
+      <div class="node-tech">Postgres · BigQuery · Snowflake</div>
+    </div>
+  </div>
+</section>
+
+<!-- FILE TREE -->
+<section id="files" class="files-section">
+  <div class="section-header reveal">
+    <span class="section-tag t2">Structure</span>
+    <h2 class="section-title">Project<br>File Tree</h2>
+  </div>
+  <div class="file-tree reveal">
+    <div class="file-tree-header">
+      <div class="dot red"></div>
+      <div class="dot yellow"></div>
+      <div class="dot green"></div>
+      <span class="file-tree-title">blockchain_etl/</span>
+    </div>
+    <div class="tree-body">
+      <div class="tree-line"><span class="tree-dir">📁 src/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  ├─ </span><span class="tree-dir">📁 ingestion/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  │  └─ </span><span class="tree-py">kafka_producer.py</span><span class="tree-comment"> &nbsp;# Streams blocks, txs, logs → Kafka topics</span></div>
+      <div class="tree-line"><span class="tree-indent">│  ├─ </span><span class="tree-dir">📁 transform/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  │  └─ </span><span class="tree-py">etl_pipeline.py</span><span class="tree-comment"> &nbsp;# Pandas + SQLGlot dialect builder</span></div>
+      <div class="tree-line"><span class="tree-indent">│  ├─ </span><span class="tree-dir">📁 models/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  │  └─ </span><span class="tree-py">risk_models.py</span><span class="tree-comment"> &nbsp;# VaR, CVaR, Impermanent Loss, MEV Exposure</span></div>
+      <div class="tree-line"><span class="tree-indent">│  └─ </span><span class="tree-dir">📁 contracts/</span></div>
+      <div class="tree-line"><span class="tree-dir">📁 scripts/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  ├─ </span><span class="tree-py">run_pipeline.py</span><span class="tree-comment"> &nbsp;# Live streaming entry point</span></div>
+      <div class="tree-line"><span class="tree-indent">│  ├─ </span><span class="tree-py">backfill.py</span><span class="tree-comment"> &nbsp;# Historical block backfill</span></div>
+      <div class="tree-line"><span class="tree-dir">📁 config/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  └─ </span><span class="tree-yaml">config.example.yaml</span><span class="tree-comment"> &nbsp;# RPC, Kafka, DB, dialect config</span></div>
+      <div class="tree-line"><span class="tree-dir">📁 tests/</span></div>
+      <div class="tree-line"><span class="tree-indent">│  └─ </span><span class="tree-py">test_etl_pipeline.py</span><span class="tree-comment"> &nbsp;# ~60 pytest unit tests</span></div>
+      <div class="tree-line"><span class="tree-md">README.md</span></div>
+      <div class="tree-line"><span class="tree-txt">requirements.txt</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="stack" class="tech-section">
+  <div class="section-header reveal">
+    <span class="section-tag t3">Stack</span>
+    <h2 class="section-title">Technologies<br>&amp; Frameworks</h2>
+  </div>
+  <div class="tech-grid reveal">
+    <div class="tech-card" style="--card-accent: #63b3ed;">
+      <div class="tech-category">Streaming</div>
+      <div class="tech-name">Real-Time Ingestion</div>
+      <div class="tech-desc">Block-by-block streaming from EVM nodes with automatic retry, gRPC subscriptions, and Kafka topic partitioning by chain ID.</div>
+      <div class="tech-tags">
+        <span class="tag">Kafka</span><span class="tag">gRPC</span><span class="tag">WebSocket</span><span class="tag">web3.py</span>
+      </div>
+    </div>
+    <div class="tech-card" style="--card-accent: #68d391;">
+      <div class="tech-category">ETL</div>
+      <div class="tech-name">Transform Layer</div>
+      <div class="tech-desc">Decodes ERC-20/721 Transfer logs, parses Uniswap V2/V3 swaps, engineers transaction risk features, and writes dialect-agnostic SQL via SQLGlot.</div>
+      <div class="tech-tags">
+        <span class="tag">Pandas</span><span class="tag">SQLGlot</span><span class="tag">eth-abi</span><span class="tag">NumPy</span>
+      </div>
+    </div>
+    <div class="tech-card" style="--card-accent: #f6ad55;">
+      <div class="tech-category">Quantitative</div>
+      <div class="tech-name">Risk Engine</div>
+      <div class="tech-desc">Historical VaR & CVaR with sqrt-of-time scaling, constant-product AMM impermanent loss model, and MEV sandwich/frontrun/backrun exposure scoring per block.</div>
+      <div class="tech-tags">
+        <span class="tag">VaR/CVaR</span><span class="tag">IL Model</span><span class="tag">MEV</span><span class="tag">SciPy</span>
+      </div>
+    </div>
+    <div id="tab-sqlglot" class="code-block active"><pre><span class="cm"># Write SQL once in Postgres — run on any warehouse</span>
+<span class="kw">class</span> <span class="cls">SQLGlotQueryBuilder</span>:
+
+    TRANSFER_VOLUME_SQL = <span class="str">"""
+        SELECT
+            DATE_TRUNC('hour', block_timestamp) AS hour_bucket,
+            contract                            AS token_contract,
+            SUM(amount / 1e18)                  AS volume_normalized,
+            COUNT(DISTINCT "from")              AS unique_senders
+        FROM token_transfers
+        WHERE block_timestamp >= NOW() - INTERVAL '24 hours'
+        GROUP BY 1, 2
+    """</span>
+
+    <span class="kw">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">transpile</span>(cls, sql, target_dialect):
+        <span class="kw">return</span> sqlglot.<span class="fn">transpile</span>(
+            sql,
+            read=<span class="str">"postgres"</span>,
+            write=target_dialect,   <span class="cm"># bigquery | snowflake | duckdb</span>
+            pretty=<span class="kw">True</span>,
+        )[<span class="num">0</span>]</pre></div>
+
+    <div id="tab-var" class="code-block"><pre><span class="cm"># Historical simulation VaR & CVaR with stress testing</span>
+<span class="kw">class</span> <span class="cls">HistoricalVaR</span>:
+
+    <span class="kw">def</span> <span class="fn">compute</span>(self, confidence=<span class="num">0.95</span>, horizon_days=<span class="num">1</span>):
+        r  = self.returns.values
+        q  = np.<span class="fn">quantile</span>(r, <span class="num">1</span> - confidence)
+
+        var_pct  = -q
+        cvar_pct = -r[r <= q].<span class="fn">mean</span>()  <span class="cm"># Expected Shortfall</span>
+
+        <span class="kw">if</span> horizon_days > <span class="num">1</span>:           <span class="cm"># sqrt-of-time scaling</span>
+            var_pct  *= np.<span class="fn">sqrt</span>(horizon_days)
+            cvar_pct *= np.<span class="fn">sqrt</span>(horizon_days)
+
+        <span class="kw">return</span> <span class="cls">VaRResult</span>(
+            var=var_pct * self.position_size,
+            cvar=cvar_pct * self.position_size,
+            method=<span class="str">"historical_simulation"</span>,
+        )</pre></div>
+
+    <div id="tab-il" class="code-block"><pre><span class="cm"># Uniswap V2 constant-product AMM impermanent loss</span>
+<span class="cm"># IL = 2√r / (1 + r) − 1  where r = price_current / price_entry</span>
+<span class="kw">class</span> <span class="cls">ImpermanentLossModel</span>:
+
+    <span class="kw">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">compute</span>(price_entry, price_current, initial_usd=<span class="num">10_000</span>):
+        r = price_current / price_entry
+
+        lp_relative = <span class="num">2</span> * np.<span class="fn">sqrt</span>(r) / (<span class="num">1</span> + r)
+        il_pct      = (lp_relative - <span class="num">1</span>) * <span class="num">100</span>   <span class="cm"># negative = loss</span>
+
+        hold_value  = initial_usd * (<span class="num">1</span> + r) / <span class="num">2</span>
+        lp_value    = initial_usd * lp_relative
+        loss_usd    = lp_value - hold_value
+
+        <span class="cm"># At 2x price: IL ≈ -5.72%</span>
+        <span class="cm"># At 5x price: IL ≈ -25.5%</span>
+        <span class="kw">return</span> <span class="cls">ImpermanentLossResult</span>(il_pct, lp_value, loss_usd)</pre></div>
+
+    <div id="tab-kafka" class="code-block"><pre><span class="cm"># Async block streaming → Kafka with retry</span>
+<span class="kw">class</span> <span class="cls">BlockchainKafkaProducer</span>:
+
+    <span class="kw">async def</span> <span class="fn">stream</span>(self, start_block=<span class="kw">None</span>):
+        latest = start_block <span class="kw">or</span> self.w3.eth.block_number
+
+        <span class="kw">while</span> <span class="kw">True</span>:
+            current = self.w3.eth.block_number
+            <span class="kw">for</span> block_num <span class="kw">in</span> <span class="fn">range</span>(latest, current + <span class="num">1</span>):
+                block = self.<span class="fn">_fetch_block</span>(block_num)
+                self.<span class="fn">_process_block</span>(block)    <span class="cm"># → Kafka</span>
+            latest = current + <span class="num">1</span>
+            <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(self.poll_interval)
+
+    <span class="kw">def</span> <span class="fn">_process_block</span>(self, block):
+        <span class="kw">for</span> tx <span class="kw">in</span> block[<span class="str">"transactions"</span>]:
+            self.<span class="fn">_publish</span>(<span class="cls">TOPIC_TRANSACTIONS</span>, tx)
+            receipt = self.w3.eth.<span class="fn">get_transaction_receipt</span>(tx[<span class="str">"hash"</span>])
+            <span class="kw">for</span> log <span class="kw">in</span> receipt[<span class="str">"logs"</span>]:
+                self.<span class="fn">_process_log</span>(log, block)  <span class="cm"># decode ERC-20/721</span></pre></div>
+  </div>
+</section>
+
+<!-- DATA VISUALIZATIONS -->
+<section id="visualizations" class="viz-section">
+  <div class="section-header reveal" style="padding: 80px 48px 0;">
+    <span class="section-tag t4" style="--n:'05'">Visualizations</span>
+    <h2 class="section-title">Live Model<br>Output</h2>
+  </div>
+
+  <!-- VaR / CVaR Chart -->
+  <div class="viz-block reveal">
+    <div class="viz-header">
+      <div>
+        <div class="viz-label">01 — Risk Model</div>
+        <div class="viz-title">Rolling VaR &amp; CVaR</div>
+        <div class="viz-desc">30-day historical simulation Value at Risk vs Expected Shortfall on a $1M ETH position</div>
+      </div>
+      <div class="viz-meta">
+        <span class="viz-badge" style="background:rgba(99,179,237,0.12);color:var(--accent)">VaR 95%</span>
+        <span class="viz-badge" style="background:rgba(252,129,129,0.12);color:#fc8181">CVaR 95%</span>
+      </div>
+    </div>
+    <div class="viz-canvas-wrap">
+      <canvas id="varChart"></canvas>
+    </div>
+  </div>
+
+  <!-- IL Curve -->
+  <div class="viz-block reveal">
+    <div class="viz-header">
+      <div>
+        <div class="viz-label">02 — DeFi Model</div>
+        <div class="viz-title">Impermanent Loss Curve</div>
+        <div class="viz-desc">IL% for a Uniswap V2 LP position as price ratio diverges from entry — hold vs LP value on $10K</div>
+      </div>
+      <div class="viz-meta">
+        <span class="viz-badge" style="background:rgba(104,211,145,0.12);color:var(--accent3)">LP Value</span>
+        <span class="viz-badge" style="background:rgba(246,173,85,0.12);color:var(--accent2)">Hold Value</span>
+      </div>
+    </div>
+    <div class="viz-canvas-wrap">
+      <canvas id="ilChart"></canvas>
+    </div>
+  </div>
+
+  <!-- MEV Heatmap -->
+  <div class="viz-block reveal">
+    <div class="viz-header">
+      <div>
+        <div class="viz-label">03 — MEV Model</div>
+        <div class="viz-title">Block MEV Risk Heatmap</div>
+        <div class="viz-desc">Composite MEV risk score per block — sandwich attack probability, frontrun signals, backrun opportunities</div>
+      </div>
+      <div class="viz-meta">
+        <span class="viz-badge" style="background:rgba(183,148,244,0.12);color:#b794f4">MEV Score 0–100</span>
+      </div>
+    </div>
+    <div class="viz-canvas-wrap" style="height:180px;">
+      <canvas id="mevChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Token Transfer Volume -->
+  <div class="viz-block reveal">
+    <div class="viz-header">
+      <div>
+        <div class="viz-label">04 — ETL Output</div>
+        <div class="viz-title">Token Transfer Volume</div>
+        <div class="viz-desc">Hourly ERC-20 transfer volume decoded from Kafka stream — normalized to token units</div>
+      </div>
+      <div class="viz-meta">
+        <span class="viz-badge" style="background:rgba(99,179,237,0.12);color:var(--accent)">ERC-20</span>
+        <span class="viz-badge" style="background:rgba(183,148,244,0.12);color:#b794f4">ERC-721</span>
+      </div>
+    </div>
+    <div class="viz-canvas-wrap">
+      <canvas id="transferChart"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">DeFi Blockchain ETL Platform</div>
+  <div class="footer-right">Python · Kafka · SQLGlot · Pandas · Flask · NumPy</div>
+</footer>
+
+<script>
+  // Tab switching
+  function showTab(id) {
+    document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.code-block').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Animated counters
+  const counters = document.querySelectorAll('[data-target]');
+  const counterObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      let count = 0;
+      const step = Math.ceil(target / 30);
+      const timer = setInterval(() => {
+        count = Math.min(count + step, target);
+        el.textContent = count;
+        if (count >= target) clearInterval(timer);
+      }, 40);
+      counterObserver.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObserver.observe(c));
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const API = 'http://localhost:5000/api';
+
+  Chart.defaults.color = '#718096';
+  Chart.defaults.font.family = "'JetBrains Mono', monospace";
+  Chart.defaults.font.size = 10;
+
+  const ACCENT  = '#63b3ed';
+  const ACCENT2 = '#f6ad55';
+  const ACCENT3 = '#68d391';
+  const PURPLE  = '#b794f4';
+  const RED     = '#fc8181';
+  const GRID    = { color: 'rgba(99,179,237,0.06)', drawBorder: false };
+
+  // Loading / error state helpers
+  function setLoading(id, msg) {
+    const canvas = document.getElementById(id);
+    const wrap = canvas.parentElement;
+    wrap.style.position = 'relative';
+    let el = wrap.querySelector('.api-status');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'api-status';
+      el.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.7rem;letter-spacing:0.1em;color:#718096;text-align:center;padding:16px;';
+      wrap.appendChild(el);
+    }
+    el.textContent = msg || 'Fetching from Flask API...';
+    canvas.style.opacity = '0';
+  }
+
+  function clearLoading(id) {
+    const canvas = document.getElementById(id);
+    const wrap = canvas.parentElement;
+    const el = wrap.querySelector('.api-status');
+    if (el) el.remove();
+    canvas.style.opacity = '1';
+  }
+
+  function showError(id, err) {
+    const wrap = document.getElementById(id).parentElement;
+    const el = wrap.querySelector('.api-status');
+    if (el) {
+      el.style.color = '#fc8181';
+      el.innerHTML = `API unavailable: ${err}<br><span style="opacity:0.6;font-size:0.6rem">Run: python api/server.py</span>`;
+    }
+  }
+
+  // ── 1. VAR / CVAR CHART ──
+  (async function() {
+    setLoading('varChart');
+    try {
+      const res  = await fetch(`${API}/var`);
+      const data = await res.json();
+      clearLoading('varChart');
+
+      // Update summary badges
+      const s = data.summary;
+      document.querySelectorAll('.viz-badge')[0].textContent = `VaR 95%: $${(s.var_95/1000).toFixed(1)}K`;
+      document.querySelectorAll('.viz-badge')[1].textContent = `CVaR 95%: $${(s.cvar_95/1000).toFixed(1)}K`;
+
+      new Chart(document.getElementById('varChart'), {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'ETH Price',
+              data: data.prices,
+              borderColor: 'rgba(99,179,237,0.2)',
+              backgroundColor: 'transparent',
+              borderWidth: 1,
+              pointRadius: 0,
+              yAxisID: 'yPrice',
+              tension: 0.3,
+            },
+            {
+              label: 'VaR 95%',
+              data: data.var_series,
+              borderColor: ACCENT,
+              backgroundColor: 'rgba(99,179,237,0.07)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              yAxisID: 'yRisk',
+              tension: 0.4,
+            },
+            {
+              label: 'CVaR 95%',
+              data: data.cvar_series,
+              borderColor: RED,
+              backgroundColor: 'rgba(252,129,129,0.05)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              yAxisID: 'yRisk',
+              tension: 0.4,
+              borderDash: [4, 3],
+            },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0a0f1e',
+              borderColor: 'rgba(99,179,237,0.2)',
+              borderWidth: 1,
+              callbacks: {
+                label: ctx => {
+                  if (ctx.dataset.yAxisID === 'yPrice') return ` ETH $${ctx.parsed.y.toLocaleString()}`;
+                  return ` ${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString()}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: GRID, ticks: { maxTicksLimit: 8 } },
+            yPrice: { position: 'right', grid: { display: false }, ticks: { callback: v => '$' + v.toLocaleString() } },
+            yRisk:  { position: 'left',  grid: GRID, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K' } },
+          }
+        }
+      });
+    } catch(e) { showError('varChart', e.message); }
+  })();
+
+  // ── 2. IMPERMANENT LOSS CURVE ──
+  (async function() {
+    setLoading('ilChart');
+    try {
+      const res  = await fetch(`${API}/il`);
+      const data = await res.json();
+      clearLoading('ilChart');
+
+      new Chart(document.getElementById('ilChart'), {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'LP Value ($)',
+              data: data.lp_values,
+              borderColor: ACCENT3,
+              backgroundColor: 'rgba(104,211,145,0.07)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.4,
+              yAxisID: 'yVal',
+            },
+            {
+              label: 'Hold Value ($)',
+              data: data.hold_values,
+              borderColor: ACCENT2,
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.4,
+              yAxisID: 'yVal',
+              borderDash: [5, 3],
+            },
+            {
+              label: 'IL %',
+              data: data.il_pct,
+              borderColor: RED,
+              backgroundColor: 'rgba(252,129,129,0.06)',
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: true,
+              tension: 0.4,
+              yAxisID: 'yIL',
+            },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0a0f1e',
+              borderColor: 'rgba(99,179,237,0.2)',
+              borderWidth: 1,
+              callbacks: {
+                label: ctx => {
+                  if (ctx.dataset.yAxisID === 'yIL') return ` IL: ${ctx.parsed.y.toFixed(2)}%`;
+                  return ` ${ctx.dataset.label}: $${ctx.parsed.y.toLocaleString()}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: GRID, ticks: { maxTicksLimit: 10 } },
+            yVal: { position: 'right', grid: { display: false }, ticks: { callback: v => '$' + v.toLocaleString() } },
+            yIL:  { position: 'left',  grid: GRID, ticks: { callback: v => v.toFixed(0) + '%' }, max: 5, min: -50 },
+          }
+        }
+      });
+    } catch(e) { showError('ilChart', e.message); }
+  })();
+
+  // ── 3. MEV HEATMAP ──
+  (async function() {
+    setLoading('mevChart');
+    try {
+      const res  = await fetch(`${API}/mev`);
+      const data = await res.json();
+      clearLoading('mevChart');
+
+      new Chart(document.getElementById('mevChart'), {
+        type: 'bar',
+        data: {
+          labels: data.blocks,
+          datasets: [{
+            label: 'MEV Risk Score',
+            data: data.scores,
+            backgroundColor: data.colors,
+            borderColor: 'transparent',
+            borderRadius: 2,
+            barPercentage: 0.85,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0a0f1e',
+              borderColor: 'rgba(99,179,237,0.2)',
+              borderWidth: 1,
+              callbacks: {
+                label: ctx => ` MEV Score: ${ctx.parsed.y}/100`,
+                afterLabel: ctx => {
+                  const i = ctx.dataIndex;
+                  return [
+                    ` Sandwich risk: ${data.sandwich[i]}`,
+                    ` Frontrun risk: ${data.frontrun[i]}`,
+                    ` Backrun opps:  ${data.backrun[i]}`,
+                  ];
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 8, maxRotation: 0 } },
+            y: { grid: GRID, min: 0, max: 100, ticks: { stepSize: 25 } }
+          }
+        }
+      });
+    } catch(e) { showError('mevChart', e.message); }
+  })();
+
+  // ── 4. TOKEN TRANSFER VOLUME ──
+  (async function() {
+    setLoading('transferChart');
+    try {
+      const res  = await fetch(`${API}/transfers`);
+      const data = await res.json();
+      clearLoading('transferChart');
+
+      new Chart(document.getElementById('transferChart'), {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [
+            {
+              label: 'ERC-20 Volume (tokens)',
+              data: data.erc20_vol,
+              backgroundColor: 'rgba(99,179,237,0.55)',
+              borderColor: 'rgba(99,179,237,0.8)',
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'yERC20',
+            },
+            {
+              label: 'ERC-721 Transfers',
+              data: data.erc721_cnt,
+              backgroundColor: 'rgba(183,148,244,0.45)',
+              borderColor: 'rgba(183,148,244,0.7)',
+              borderWidth: 1,
+              borderRadius: 3,
+              yAxisID: 'yERC721',
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0a0f1e',
+              borderColor: 'rgba(99,179,237,0.2)',
+              borderWidth: 1,
+              callbacks: {
+                label: ctx => {
+                  if (ctx.datasetIndex === 0) return ` ERC-20: ${ctx.parsed.y.toLocaleString()} tokens`;
+                  return ` ERC-721: ${ctx.parsed.y} transfers`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: GRID },
+            yERC20:  { position: 'left',  grid: GRID, ticks: { callback: v => v.toLocaleString() } },
+            yERC721: { position: 'right', grid: { display: false }, ticks: { callback: v => v } },
+          }
+        }
+      });
+    } catch(e) { showError('transferChart', e.message); }
+  })();
+</script>
+</body>
+</html>

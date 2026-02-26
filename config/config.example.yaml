@@ -1,0 +1,22 @@
+``# config/config.example.yaml
+# Copy to config.yaml and fill in your values
+
+network:
+  name: ethereum-mainnet
+  chain_id: 1
+  rpc_url: "https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY"
+  poll_interval_seconds: 2
+
+kafka:
+  bootstrap_servers: "localhost:9092"
+  topics:
+    blocks: "blockchain.blocks.raw"
+    transactions: "blockchain.transactions.raw"
+    logs: "blockchain.logs.raw"
+    token_transfers: "blockchain.token_transfers.raw"
+
+etl:
+  target_dialect: "postgres"   # postgres | bigquery | snowflake | duckdb
+
+database:
+  url: "postgresql://user:pass@localhost:5432/blockchain_etl"
