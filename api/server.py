@@ -20,15 +20,24 @@ from pathlib import Path
 # Make sure src/ is importable
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 
 from api.data_service import DataService
 
+# Root of the project — always correct regardless of where python is invoked from
+ROOT_DIR = Path(__file__).parent.parent
+
 app = Flask(__name__)
-CORS(app)  # Allow the HTML frontend to call the API from any origin
+CORS(app)
 
 service = DataService()
+
+
+@app.route('/')
+def index():
+    """Serve the showcase HTML at the root URL."""
+    return send_from_directory(str(ROOT_DIR), 'frontend.html')
 
 
 @app.route("/api/health")
@@ -77,6 +86,10 @@ def transfers_endpoint():
 
 
 if __name__ == "__main__":
-    print("\n🚀 DeFi ETL API running at http://localhost:5000")
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    host = "0.0.0.0"  # Required for Render
+    debug = os.environ.get("FLASK_ENV") != "production"
+    print(f"\n🚀 DeFi ETL API running at http://{host}:{port}")
     print("   Endpoints: /api/health  /api/var  /api/il  /api/mev  /api/transfers\n")
-    app.run(debug=True, port=5000)
+    app.run(debug=debug, host=host, port=port)

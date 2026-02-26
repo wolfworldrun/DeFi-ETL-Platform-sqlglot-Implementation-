@@ -1094,7 +1094,10 @@
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-  const API = 'http://localhost:5000/api';
+  // Auto-detect API URL: use current host in production, localhost in dev
+  const API = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+    ? 'http://localhost:5000/api'
+    : window.location.origin + '/api';
 
   Chart.defaults.color = '#718096';
   Chart.defaults.font.family = "'JetBrains Mono', monospace";
